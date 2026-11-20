@@ -24,6 +24,16 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2500);
 }
 
+function switchTab(tabId) {
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tab === tabId);
+  });
+  document.querySelectorAll('.tab-view').forEach(view => {
+    view.classList.toggle('active', view.id === tabId);
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
 function goStep(stepNum) {
   document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('step' + stepNum).classList.add('active');
@@ -80,6 +90,11 @@ function calculateNeeds() {
   document.getElementById('carbGrams').textContent = targetCarb;
   document.getElementById('protGrams').textContent = targetProt;
   document.getElementById('fatGrams').textContent = targetFat;
+
+  document.getElementById('exRdaHint').textContent = targetRDA;
+  document.getElementById('exCarbHint').textContent = targetCarb;
+  document.getElementById('exProtHint').textContent = targetProt;
+  document.getElementById('exFatHint').textContent = targetFat;
 
   document.getElementById('rdaProtCell').textContent = targetProt;
   document.getElementById('rdaCarbCell').textContent = targetCarb;
@@ -236,10 +251,15 @@ function resetAll() {
   document.getElementById('mealsBody').innerHTML = '';
   for (let i = 0; i < 4; i++) addMealRow();
   goStep(1);
+  switchTab('tab-calc');
   updateIBW();
   calculateNeeds();
   showToast('تمت إعادة ضبط البيانات');
 }
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+});
 
 document.getElementById('gender').addEventListener('change', function () {
   document.getElementById('specialWrap').style.display = this.value === 'female' ? 'block' : 'none';

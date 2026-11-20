@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>مِيزان | MIZAN</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="min-h-screen pb-10">
+
+  <header class="bg-slate-900/95 border-b border-slate-800 sticky top-0 z-30 backdrop-blur">
+    <div class="max-w-7xl mx-auto px-3 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center font-extrabold text-base text-white">M</div>
+        <span class="text-xl font-extrabold tracking-wide text-white">مِيزان <span class="text-cyan-400 text-sm font-bold">MIZAN</span></span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="resetWizard()" id="btnBackToWizard" class="hidden px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 transition">تعديل البيانات</button>
+        <button onclick="exportToExcel()" id="btnExport" class="hidden px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition">تصدير Excel</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-2.5 mt-5">
+
+    <section id="wizardSection" class="max-w-xl mx-auto bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl mt-6">
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-2">
+          <span id="stepBadge1" class="w-7 h-7 rounded-full bg-cyan-500 text-slate-950 font-bold flex items-center justify-center text-xs">1</span>
+          <span class="text-xs font-bold text-slate-200">البيانات</span>
+        </div>
+        <div class="h-0.5 flex-1 bg-slate-800 mx-2"></div>
+        <div class="flex items-center gap-2">
+          <span id="stepBadge2" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 font-bold flex items-center justify-center text-xs">2</span>
+          <span class="text-xs font-bold text-slate-400">المجهود</span>
+        </div>
+        <div class="h-0.5 flex-1 bg-slate-800 mx-2"></div>
+        <div class="flex items-center gap-2">
+          <span id="stepBadge3" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 font-bold flex items-center justify-center text-xs">3</span>
+          <span class="text-xs font-bold text-slate-400">الهدف</span>
+        </div>
+      </div>
+
+      <div id="step1" class="space-y-5">
+        <div class="grid grid-cols-2 gap-3">
+          <label class="cursor-pointer">
+            <input type="radio" name="gender" value="male" class="peer sr-only" checked onchange="onGenderOrHeightChange()">
+            <div class="p-3.5 rounded-xl border border-slate-700 bg-slate-800/40 peer-checked:border-cyan-500 peer-checked:bg-cyan-500/10 text-center font-bold text-white transition">👨 ذكر</div>
+          </label>
+          <label class="cursor-pointer">
+            <input type="radio" name="gender" value="female" class="peer sr-only" onchange="onGenderOrHeightChange()">
+            <div class="p-3.5 rounded-xl border border-slate-700 bg-slate-800/40 peer-checked:border-pink-500 peer-checked:bg-pink-500/10 text-center font-bold text-white transition">👩 أنثى</div>
+          </label>
+        </div>
+
+        <div id="femaleConditionBox" class="hidden">
+          <label class="block text-xs font-bold text-pink-300 mb-1.5">الحالة</label>
+          <select id="femaleCondition" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white focus:border-pink-500 focus:outline-none">
+            <option value="0">عادية</option>
+            <option value="200">حامل (+200)</option>
+            <option value="300">حامل (+300)</option>
+            <option value="500">مرضع (+500)</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2.5">
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1">العمر (سنة)</label>
+            <input type="number" id="age" value="25" min="15" max="100" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-white font-bold focus:border-cyan-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1">الطول (سم)</label>
+            <input type="number" id="height" value="170" min="140" max="220" oninput="onGenderOrHeightChange()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-white font-bold focus:border-cyan-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1">الوزن (كجم)</label>
+            <input type="number" id="weight" value="70" min="25" max="250" oninput="onGenderOrHeightChange()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-white font-bold focus:border-cyan-500 focus:outline-none">
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-2.5">
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-slate-400">الوزن المثالي:</span>
+            <span class="text-base font-extrabold text-cyan-400" id="idealWeightDisplay">66.6 كجم</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2 pt-1">
+            <label class="cursor-pointer">
+              <input type="radio" name="weightBasis" value="ideal" class="peer sr-only" checked>
+              <div class="p-2 rounded-lg border border-slate-700 bg-slate-900 peer-checked:border-cyan-500 peer-checked:bg-cyan-500/10 text-xs font-bold text-center text-white transition">الحساب بالوزن المثالي</div>
+            </label>
+            <label class="cursor-pointer">
+              <input type="radio" name="weightBasis" value="current" class="peer sr-only">
+              <div class="p-2 rounded-lg border border-slate-700 bg-slate-900 peer-checked:border-amber-500 peer-checked:bg-amber-500/10 text-xs font-bold text-center text-white transition">الحساب بالوزن الحالي</div>
+            </label>
+          </div>
+        </div>
+
+        <div class="flex justify-end">
+          <button onclick="goToStep(2)" class="px-6 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-bold transition">التالي ←</button>
+        </div>
+      </div>
+
+      <div id="step2" class="hidden space-y-4">
+        <div class="space-y-2.5">
+          <label class="cursor-pointer block">
+            <input type="radio" name="activity" value="0.50" class="peer sr-only" checked>
+            <div class="p-3.5 rounded-xl border border-slate-700 bg-slate-800/40 peer-checked:border-cyan-500 peer-checked:bg-cyan-500/10 flex items-center justify-between gap-2 transition">
+              <span class="font-bold text-white text-sm">مجهود بسيط (طالب - موظف)</span>
+              <span class="px-2.5 py-1 rounded bg-cyan-500/20 text-cyan-300 font-extrabold text-xs shrink-0">+50%</span>
+            </div>
+          </label>
+          <label class="cursor-pointer block">
+            <input type="radio" name="activity" value="0.75" class="peer sr-only">
+            <div class="p-3.5 rounded-xl border border-slate-700 bg-slate-800/40 peer-checked:border-cyan-500 peer-checked:bg-cyan-500/10 flex items-center justify-between gap-2 transition">
+              <span class="font-bold text-white text-sm">مجهود متوسط (طبيب - محاسب - مهندس - ربة منزل - مدرس)</span>
+              <span class="px-2.5 py-1 rounded bg-amber-500/20 text-amber-300 font-extrabold text-xs shrink-0">+75%</span>
+            </div>
+          </label>
+          <label class="cursor-pointer block">
+            <input type="radio" name="activity" value="1.00" class="peer sr-only">
+            <div class="p-3.5 rounded-xl border border-slate-700 bg-slate-800/40 peer-checked:border-cyan-500 peer-checked:bg-cyan-500/10 flex items-center justify-between gap-2 transition">
+              <span class="font-bold text-white text-sm">مجهود شاق (عامل بناء - عامل حفر - عامل مناجم)</span>
+              <span class="px-2.5 py-1 rounded bg-rose-500/20 text-rose-300 font-extrabold text-xs shrink-0">+100%</span>
+            </div>
+          </label>
+        </div>
+
+        <div class="flex justify-between pt-2">
+          <button onclick="goToStep(1)" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-bold transition">→ السابق</button>
+          <button onclick="goToStep(3)" class="px-6 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-bold transition">التالي ←</button>
+        </div>
+      </div>
+
+      <div id="step3" class="hidden space-y-5">
+        <div class="grid grid-cols-3 gap-3">
+          <label class="cursor-pointer">
+            <input type="radio" name="goal" value="-500" class="peer sr-only">
+            <div class="p-4 rounded-xl border border-slate-700 bg-slate-800/40 peer-checked:border-rose-500 peer-checked:bg-rose-500/10 text-center transition">
+              <div class="text-xl mb-1">📉</div>
+              <div class="font-bold text-white text-sm">إنقاص الوزن</div>
+              <div class="mt-2 text-xs font-bold text-rose-400">-500</div>
+            </div>
+          </label>
+          <label class="cursor-pointer">
+            <input type="radio" name="goal" value="0" class="peer sr-only" checked>
+            <div class="p-4 rounded-xl border border-slate-700 bg-slate-800/40 peer-checked:border-cyan-500 peer-checked:bg-cyan-500/10 text-center transition">
+              <div class="text-xl mb-1">⚖️</div>
+              <div class="font-bold text-white text-sm">ثبات الوزن</div>
+              <div class="mt-2 text-xs font-bold text-cyan-400">0</div>
+            </div>
+          </label>
+          <label class="cursor-pointer">
+            <input type="radio" name="goal" value="500" class="peer sr-only">
+            <div class="p-4 rounded-xl border border-slate-700 bg-slate-800/40 peer-checked:border-emerald-500 peer-checked:bg-emerald-500/10 text-center transition">
+              <div class="text-xl mb-1">📈</div>
+              <div class="font-bold text-white text-sm">زيادة الوزن</div>
+              <div class="mt-2 text-xs font-bold text-emerald-400">+500</div>
+            </div>
+          </label>
+        </div>
+
+        <div class="flex justify-between pt-2">
+          <button onclick="goToStep(2)" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-bold transition">→ السابق</button>
+          <button onclick="calculateAndShowDashboard()" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-sm font-extrabold transition">احسب الآن</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="dashboardSection" class="hidden space-y-5">
+
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5">
+          <div class="text-xs text-slate-400 font-bold">BMR</div>
+          <div class="text-2xl font-extrabold text-white mt-0.5"><span id="resBMR">0</span> <span class="text-xs font-normal text-slate-400">سعرة</span></div>
+        </div>
+        <div class="bg-slate-900 border border-cyan-500/40 rounded-xl p-3.5">
+          <div class="text-xs text-cyan-300 font-bold">RDA الكلية</div>
+          <div class="text-2xl font-extrabold text-cyan-400 mt-0.5"><span id="resTotalCal">0</span> <span class="text-xs font-normal text-slate-400">سعرة</span></div>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5">
+          <div class="text-xs text-slate-400 flex justify-between font-bold"><span>الكربوهيدرات</span><span class="text-amber-400" id="carbPctLabel">60%</span></div>
+          <div class="text-2xl font-extrabold text-amber-400 mt-0.5"><span id="resCarbG">0</span> <span class="text-xs font-normal text-slate-400">جم</span></div>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5">
+          <div class="text-xs text-slate-400 flex justify-between font-bold"><span>البروتين</span><span class="text-emerald-400" id="protPctLabel">15%</span></div>
+          <div class="text-2xl font-extrabold text-emerald-400 mt-0.5"><span id="resProtG">0</span> <span class="text-xs font-normal text-slate-400">جم</span></div>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5 col-span-2 md:col-span-1">
+          <div class="text-xs text-slate-400 flex justify-between font-bold"><span>الدهون</span><span class="text-rose-400" id="fatPctLabel">25%</span></div>
+          <div class="text-2xl font-extrabold text-rose-400 mt-0.5"><span id="resFatG">0</span> <span class="text-xs font-normal text-slate-400">جم</span></div>
+        </div>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+        <span class="text-xs font-bold text-slate-300">النسب المئوية:</span>
+        <div class="grid grid-cols-3 gap-2 w-full sm:w-auto text-xs">
+          <label class="flex items-center justify-between gap-1.5 bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5">
+            <span class="text-amber-400 font-bold">كربوهيدرات %</span>
+            <input type="number" id="pctCarb" value="60" min="10" max="80" onchange="onPctChange()" class="w-11 bg-transparent text-center font-extrabold text-white focus:outline-none">
+          </label>
+          <label class="flex items-center justify-between gap-1.5 bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5">
+            <span class="text-emerald-400 font-bold">بروتين %</span>
+            <input type="number" id="pctProt" value="15" min="10" max="50" onchange="onPctChange()" class="w-11 bg-transparent text-center font-extrabold text-white focus:outline-none">
+          </label>
+          <label class="flex items-center justify-between gap-1.5 bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5">
+            <span class="text-rose-400 font-bold">دهون %</span>
+            <input type="number" id="pctFat" value="25" min="10" max="60" onchange="onPctChange()" class="w-11 bg-transparent text-center font-extrabold text-white focus:outline-none">
+          </label>
+        </div>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+        <div class="px-4 py-3 bg-slate-900 border-b border-slate-800 flex items-center justify-between gap-2">
+          <h3 class="text-sm md:text-base font-extrabold text-cyan-400">جدول الوحدات التبادلية</h3>
+          <button onclick="smartAutoDistribute()" class="px-3 py-1.5 rounded-lg bg-cyan-600/20 hover:bg-cyan-600/30 border border-cyan-500/40 text-cyan-300 text-xs font-bold transition">إعادة الضبط التلقائي</button>
+        </div>
+        <div class="w-full overflow-x-auto">
+          <table class="excel-grid text-[11px] sm:text-sm" id="unitsTable">
+            <thead>
+              <tr>
+                <th class="text-right pr-3">مجموعة الأطعمة</th>
+                <th class="w-16 sm:w-24">الوحدة</th>
+                <th class="w-14 sm:w-20">البروتين</th>
+                <th class="w-16 sm:w-24">الكربوهيدرات</th>
+                <th class="w-14 sm:w-20">الدهون</th>
+                <th class="w-16 sm:w-24">المجموع</th>
+              </tr>
+            </thead>
+            <tbody id="unitsTableBody"></tbody>
+            <tfoot>
+              <tr class="bg-slate-950 font-bold text-cyan-300">
+                <td colspan="2" class="text-right pr-3 font-extrabold">الـ RDA</td>
+                <td id="rdaProtCell">0</td>
+                <td id="rdaCarbCell">0</td>
+                <td id="rdaFatCell">0</td>
+                <td id="rdaCalCell">0</td>
+              </tr>
+              <tr class="bg-slate-900 font-extrabold text-white">
+                <td colspan="2" class="text-right pr-3">المجموع</td>
+                <td id="sumProtCell">0</td>
+                <td id="sumCarbCell">0</td>
+                <td id="sumFatCell">0</td>
+                <td id="sumCalCell">0</td>
+              </tr>
+              <tr id="diffRow" class="hidden bg-slate-950 font-extrabold text-xs">
+                <td colspan="2" class="text-right pr-3 text-slate-400">الفرق بعد التعديل اليدوي</td>
+                <td id="diffProtCell">0</td>
+                <td id="diffCarbCell">0</td>
+                <td id="diffFatCell">0</td>
+                <td id="diffCalCell">0</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+        <div class="px-4 py-3 bg-slate-900 border-b border-slate-800 flex items-center justify-between gap-2">
+          <h3 class="text-sm md:text-base font-extrabold text-amber-400">توزيع الوجبات اليومية</h3>
+          <button onclick="addMealRow()" class="px-3 py-1.5 rounded-lg bg-amber-600/20 hover:bg-amber-600/30 border border-amber-500/40 text-amber-300 text-xs font-bold transition">+ إضافة صف</button>
+        </div>
+
+        <div class="md:hidden p-2.5 bg-slate-950 border-b border-slate-800 flex gap-1.5 overflow-x-auto" id="mobileMealTabs"></div>
+        <div class="md:hidden p-3" id="mobileMealView"></div>
+
+        <div class="hidden md:block w-full">
+          <table class="excel-grid text-xs" id="mealsTable">
+            <thead>
+              <tr>
+                <th colspan="3" class="bg-indigo-950/90 text-indigo-300">بعد الاستيقاظ</th>
+                <th colspan="3" class="bg-cyan-950/90 text-cyan-300">الإفطار</th>
+                <th colspan="3" class="bg-slate-800 text-slate-200">بين الفطار والغداء</th>
+                <th colspan="3" class="bg-emerald-950/90 text-emerald-300">الغداء</th>
+                <th colspan="3" class="bg-slate-800 text-slate-200">بين الغداء والعشاء</th>
+                <th colspan="3" class="bg-amber-950/90 text-amber-300">العشاء</th>
+                <th colspan="3" class="bg-purple-950/90 text-purple-300">قبل النوم</th>
+              </tr>
+              <tr class="text-[11px]">
+                <th>الصنف</th><th class="w-11">وحدة</th><th class="w-11">جم</th>
+                <th>الصنف</th><th class="w-11">وحدة</th><th class="w-11">جم</th>
+                <th>الصنف</th><th class="w-11">وحدة</th><th class="w-11">جم</th>
+                <th>الصنف</th><th class="w-11">وحدة</th><th class="w-11">جم</th>
+                <th>الصنف</th><th class="w-11">وحدة</th><th class="w-11">جم</th>
+                <th>الصنف</th><th class="w-11">وحدة</th><th class="w-11">جم</th>
+                <th>الصنف</th><th class="w-11">وحدة</th><th class="w-11">جم</th>
+              </tr>
+            </thead>
+            <tbody id="mealsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

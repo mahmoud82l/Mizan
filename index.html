@@ -81,7 +81,7 @@
             <div class="step-line"></div>
             <div class="step-item" data-step="2">
               <span class="step-num">2</span>
-              <span>المجهود</span>
+              <span>المجهود والظروف</span>
             </div>
             <div class="step-line"></div>
             <div class="step-item" data-step="3">
@@ -112,11 +112,11 @@
             <div class="grid-3">
               <div class="field">
                 <label for="age">السن (سنة)</label>
-                <input type="number" id="age" min="10" max="100" value="25">
+                <input type="number" id="age" min="10" max="100" value="33">
               </div>
               <div class="field">
                 <label for="height">الطول (سم)</label>
-                <input type="number" id="height" min="130" max="220" value="170">
+                <input type="number" id="height" min="130" max="220" value="168">
               </div>
               <div class="field">
                 <label for="weight">الوزن الحالي (كجم)</label>
@@ -126,7 +126,7 @@
 
             <div class="ibw-box">
               <span>الوزن المثالي:</span>
-              <strong id="ibwVal">66.6 كجم</strong>
+              <strong id="ibwVal">65.2 كجم</strong>
             </div>
 
             <div class="field">
@@ -144,11 +144,19 @@
 
           <div class="step-panel" id="step2">
             <div class="field">
-              <label for="activity">نسبة طاقة المجهود</label>
+              <label for="activity">نسبة طاقة المجهود (المهنة)</label>
               <select id="activity">
-                <option value="0.50" selected>مجهود بسيط: 50% (طالب - موظف - ربة منزل)</option>
-                <option value="0.75">مجهود متوسط: 75% (طبيب - محاسب - مهندس - مدرس)</option>
+                <option value="0.50" selected>مجهود بسيط: 50% (طالب - موظف)</option>
+                <option value="0.75">مجهود متوسط: 75% (طبيب - محاسب - مهندس - ربة منزل - مدرس)</option>
                 <option value="1.00">مجهود شاق: 100% (عامل بناء - عامل حفر - عامل مناجم)</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="exercise">ممارسة الرياضة</label>
+              <select id="exercise">
+                <option value="0" selected>لا يمارس الرياضة (0%)</option>
+                <option value="0.06">يمارس الرياضة (+6% من BMR المثالية)</option>
               </select>
             </div>
 
@@ -158,12 +166,8 @@
                 <input type="number" id="bodyTemp" min="35" max="43" step="0.1" value="37" placeholder="37">
               </div>
               <div class="field">
-                <label for="climate">درجة حرارة المناخ</label>
-                <select id="climate">
-                  <option value="0" selected>معتدل (طبيعي)</option>
-                  <option value="0.05">بارد (+5%)</option>
-                  <option value="-0.05">حار (-5%)</option>
-                </select>
+                <label for="climateTemp">درجة حرارة المناخ (°م)</label>
+                <input type="number" id="climateTemp" min="-10" max="55" step="1" value="20" placeholder="20">
               </div>
             </div>
 
@@ -177,11 +181,12 @@
             <div class="field">
               <label for="goal">الهدف الغذائي</label>
               <select id="goal">
-                <option value="0" selected>تثبيت الوزن</option>
+                <option value="0" selected>شخص طبيعي (تثبيت الوزن)</option>
                 <option value="-500">إنقاص الوزن (-500 سعرة)</option>
                 <option value="500">زيادة الوزن (+500 سعرة)</option>
               </select>
             </div>
+
             <div class="step-actions">
               <button type="button" class="btn-outline" onclick="goStep(2)">السابق</button>
               <button type="button" class="btn-primary" id="calcBtn">احسب الاحتياجات</button>
@@ -192,14 +197,14 @@
         <div class="summary-side">
           <div class="stats-grid">
             <div class="stat-card">
-              <div class="stat-title">BMR</div>
+              <div class="stat-title">BMR المعدلة</div>
               <div class="stat-val"><span id="bmrVal">0</span> <small>سعرة</small></div>
-              <div class="stat-sub" id="bmrSub">الوزن المثالي</div>
+              <div class="stat-sub" id="bmrSub">المثالية: 0</div>
             </div>
             <div class="stat-card highlight">
               <div class="stat-title">RDA الكلية</div>
               <div class="stat-val"><span id="rdaVal">0</span> <small>سعرة</small></div>
-              <div class="stat-sub" id="rdaSub">مجهود: 0 | SDA: 0</div>
+              <div class="stat-sub" id="rdaSub">طاقة المجهود: 0</div>
             </div>
             <div class="stat-card">
               <div class="stat-title">الكربوهيدرات (60%)</div>
@@ -215,9 +220,9 @@
             </div>
           </div>
 
-          <div class="steps-accordion" id="mathAccordion">
-            <button type="button" class="accordion-toggle" id="toggleMathBtn" aria-expanded="false">
-              <span>عرض خطوات الحل والمعادلات</span>
+          <div class="steps-accordion open" id="mathAccordion">
+            <button type="button" class="accordion-toggle" id="toggleMathBtn" aria-expanded="true">
+              <span>عرض خطوات الحل والمعادلات بالتفصيل</span>
               <svg class="chevron-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="6 9 12 15 18 9"></polyline>
               </svg>
@@ -304,7 +309,6 @@
 
         <datalist id="foodItemsList"></datalist>
 
-        <!-- عرض الوجبات كاملة بعرض الشاشة بدون سحب أفقي -->
         <div id="mealsContainer" class="meals-blocks-grid"></div>
 
         <div class="status-banner" id="mealsStatusBanner"></div>
@@ -316,11 +320,27 @@
     </section>
   </main>
 
-  <!-- الصورة في آخر الموقع -->
+  <!-- الصورة وأسماء فريق العمل في آخر الموقع -->
   <footer class="container team-footer">
     <div class="card team-footer-card">
       <img src="team.jpg" alt="فريق العمل - نوعية عين شمس" class="team-footer-img">
       <p class="team-footer-caption">فريق العمل • قسم الاقتصاد المنزلي - كلية التربية النوعية جامعة عين شمس</p>
+
+      <div class="team-members-box">
+        <div class="team-members-title">أعضاء فريق العمل</div>
+        <ol class="team-members-grid">
+          <li><span>1</span> شهد محمود بدر احمد</li>
+          <li><span>2</span> فاتن عاطف سيد خليل</li>
+          <li><span>3</span> هدير سامح محمود</li>
+          <li><span>4</span> فاطمه خزعل محمد</li>
+          <li><span>5</span> مرح اشرف محمد</li>
+          <li><span>6</span> رانيا خالد سعيد</li>
+          <li><span>7</span> حبيبه محمد علي أحمد الراوي</li>
+          <li><span>8</span> روان حسين محمد</li>
+          <li><span>9</span> هبه ضيف محمد محمد</li>
+          <li><span>10</span> يارا السيد حسام</li>
+        </ol>
+      </div>
     </div>
   </footer>
 

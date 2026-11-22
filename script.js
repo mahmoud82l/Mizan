@@ -1,3 +1,90 @@
+/* ================= تحكم شاشة البداية والسحب لأعلى ================= */
+(function initSplashScreen() {
+  const splash = document.getElementById('splashScreen');
+  const loader = document.getElementById('splashLoader');
+  const swipePrompt = document.getElementById('swipeUpPrompt');
+  if (!splash) return;
+
+  let isReadyToSwipe = false;
+  let startY = 0;
+  let currentDeltaY = 0;
+  let isDragging = false;
+
+  setTimeout(() => {
+    loader.classList.add('hidden');
+    swipePrompt.classList.remove('hidden');
+    isReadyToSwipe = true;
+  }, 1500);
+
+  function dismissSplash() {
+    if (!isReadyToSwipe || splash.classList.contains('dismissed')) return;
+    splash.style.transform = '';
+    splash.classList.add('dismissed');
+    document.body.classList.remove('splash-locked');
+    setTimeout(() => {
+      splash.style.display = 'none';
+    }, 620);
+  }
+
+  splash.addEventListener('touchstart', (e) => {
+    if (!isReadyToSwipe) return;
+    startY = e.touches[0].clientY;
+    currentDeltaY = 0;
+    isDragging = true;
+    splash.classList.add('dragging');
+  }, { passive: true });
+
+  splash.addEventListener('touchmove', (e) => {
+    if (!isDragging || !isReadyToSwipe) return;
+    const y = e.touches[0].clientY;
+    currentDeltaY = y - startY;
+    if (currentDeltaY < 0) {
+      splash.style.transform = `translateY(${currentDeltaY}px)`;
+    }
+  }, { passive: true });
+
+  splash.addEventListener('touchend', () => {
+    if (!isDragging) return;
+    isDragging = false;
+    splash.classList.remove('dragging');
+    if (currentDeltaY < -45) {
+      dismissSplash();
+    } else {
+      splash.style.transform = 'translateY(0)';
+    }
+  });
+
+  splash.addEventListener('mousedown', (e) => {
+    if (!isReadyToSwipe) return;
+    startY = e.clientY;
+    currentDeltaY = 0;
+    isDragging = true;
+    splash.classList.add('dragging');
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    if (!isDragging || !isReadyToSwipe) return;
+    currentDeltaY = e.clientY - startY;
+    if (currentDeltaY < 0) {
+      splash.style.transform = `translateY(${currentDeltaY}px)`;
+    }
+  });
+
+  window.addEventListener('mouseup', () => {
+    if (!isDragging) return;
+    isDragging = false;
+    splash.classList.remove('dragging');
+    if (currentDeltaY < -45) {
+      dismissSplash();
+    } else {
+      splash.style.transform = 'translateY(0)';
+    }
+  });
+
+  swipePrompt.addEventListener('click', dismissSplash);
+})();
+
+/* ================= ثوابت وبيانات التطبيق ================= */
 const ibwTableMale = {
   157: 58.6, 158: 59.3, 159: 59.9, 160: 60.5, 161: 61.1,
   162: 61.7, 163: 62.3, 164: 62.9, 165: 63.5, 166: 64.0,
@@ -61,6 +148,16 @@ const mealCatalog = {
   'زيت للطهي': { gKey: 'oil_cook', gram: 15 },
   'زيت للسلطة': { gKey: 'oil_salad', gram: 5 }
 };
+
+const mealNames = [
+  'بعد الاستيقاظ',
+  'الإفطار',
+  'بين الفطار والغداء',
+  'الغداء',
+  'بين الغداء والعشاء',
+  'العشاء',
+  'قبل النوم'
+];
 
 let targetRDA = 0;
 let targetCarb = 0;
@@ -142,7 +239,6 @@ function calculateNeeds() {
 
   const baseBmr = Math.max(0, Math.round(afterAgeBmr + special));
 
-  // حساب زيادة درجة حرارة الجسم (+13% من BMR لكل 1°م فوق 37°م)
   let feverDiff = 0;
   let feverPct = 0;
   let feverCal = 0;
@@ -156,7 +252,6 @@ function calculateNeeds() {
   const activityCal = Math.round(baseBmr * activityPct);
   const sdaCal = Math.round(bmr * 0.10);
 
-  // الإجمالي قبل تأثير المناخ
   const beforeClimate = bmr + activityCal + sdaCal;
   const climateCal = Math.round(beforeClimate * climatePct);
 
@@ -456,42 +551,76 @@ function populateFoodList() {
   });
 }
 
-function createEmptyMealRow() {
-  const tbody = document.getElementById('mealsBody');
+/* ================= بناء كروت الوجبات كاملة بعرض الشاشة ================= */
+function addRowToMeal(mealIdx, itemData = null) {
+  const tbody = document.querySelector(`.meal-block[data-meal="${mealIdx}"] tbody`);
+  if (!tbody) return;
+
   const tr = document.createElement('tr');
-  let cells = '';
-  for (let m = 0; m < 7; m++) {
-    cells += `
-      <td><input type="text" class="meal-item" list="foodItemsList" placeholder="الصنف"></td>
-      <td><input type="number" class="meal-unit" min="0" step="0.5" placeholder="0"></td>
-      <td><input type="number" class="gram-cell" min="0" step="1" placeholder="0"></td>
-    `;
-  }
-  tr.innerHTML = cells;
+  tr.innerHTML = `
+    <td><input type="text" class="meal-item" list="foodItemsList" placeholder="الصنف" value="${itemData ? itemData.name : ''}"></td>
+    <td><input type="number" class="meal-unit" min="0" step="0.5" placeholder="0" value="${itemData ? itemData.units : ''}"></td>
+    <td><input type="number" class="gram-cell" min="0" step="1" placeholder="0" value="${itemData ? itemData.grams : ''}"></td>
+  `;
   tbody.appendChild(tr);
 
-  tr.querySelectorAll('.meal-unit').forEach(unitInp => {
-    const itemInp = unitInp.parentElement.previousElementSibling.querySelector('.meal-item');
-    const gramInp = unitInp.parentElement.nextElementSibling.querySelector('.gram-cell');
+  const itemInp = tr.querySelector('.meal-item');
+  const unitInp = tr.querySelector('.meal-unit');
+  const gramInp = tr.querySelector('.gram-cell');
 
-    const updateCell = () => {
-      const itemName = itemInp.value.trim();
-      const u = Number(unitInp.value) || 0;
-      const entry = mealCatalog[itemName];
-      if (entry && u > 0) {
-        gramInp.value = Math.round(u * entry.gram);
-      } else if (u === 0) {
-        gramInp.value = 0;
-      }
-      validateMeals();
-    };
+  const updateCell = () => {
+    const itemName = itemInp.value.trim();
+    const u = Number(unitInp.value) || 0;
+    const entry = mealCatalog[itemName];
+    if (entry && u > 0) {
+      gramInp.value = Math.round(u * entry.gram);
+    } else if (u === 0) {
+      gramInp.value = 0;
+    }
+    validateMeals();
+  };
 
-    unitInp.addEventListener('input', updateCell);
-    itemInp.addEventListener('input', updateCell);
-    itemInp.addEventListener('change', updateCell);
+  unitInp.addEventListener('input', updateCell);
+  itemInp.addEventListener('input', updateCell);
+  itemInp.addEventListener('change', updateCell);
+}
+
+function renderMealsGrid() {
+  const container = document.getElementById('mealsContainer');
+  container.innerHTML = '';
+
+  mealNames.forEach((title, idx) => {
+    const block = document.createElement('div');
+    block.className = 'meal-block';
+    block.dataset.meal = idx;
+    block.innerHTML = `
+      <div class="meal-block-head">
+        <span class="meal-block-title">${idx + 1}. ${title}</span>
+        <button type="button" class="meal-add-mini" onclick="addRowToMeal(${idx})">+ صنف</button>
+      </div>
+      <table class="meal-sub-table">
+        <thead>
+          <tr>
+            <th>الصنف</th>
+            <th>وحدة</th>
+            <th>جم</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    `;
+    container.appendChild(block);
+
+    for (let r = 0; r < 2; r++) {
+      addRowToMeal(idx);
+    }
   });
+}
 
-  return tr;
+function createEmptyMealRow() {
+  for (let m = 0; m < mealNames.length; m++) {
+    addRowToMeal(m);
+  }
 }
 
 function getExchangeUnitsMap() {
@@ -591,20 +720,14 @@ function autoDistributeMeals() {
 
   if (exMap.fruit_other > 0) pushItem(6, 'تمر', exMap.fruit_other);
 
-  const maxRows = Math.max(4, ...meals.map(m => m.length));
-  const tbody = document.getElementById('mealsBody');
-  tbody.innerHTML = '';
-
-  for (let r = 0; r < maxRows; r++) {
-    const tr = createEmptyMealRow();
-    const tds = tr.querySelectorAll('td');
-    for (let m = 0; m < 7; m++) {
-      const item = meals[m][r];
-      if (item) {
-        tds[m * 3].querySelector('input').value = item.name;
-        tds[m * 3 + 1].querySelector('input').value = item.units;
-        tds[m * 3 + 2].querySelector('input').value = item.grams;
-      }
+  for (let m = 0; m < mealNames.length; m++) {
+    const tbody = document.querySelector(`.meal-block[data-meal="${m}"] tbody`);
+    tbody.innerHTML = '';
+    const items = meals[m];
+    if (items.length === 0) {
+      addRowToMeal(m);
+    } else {
+      items.forEach(item => addRowToMeal(m, item));
     }
   }
 
@@ -621,22 +744,19 @@ function validateMeals() {
   let hasInvalidEntry = false;
   let totalUsed = 0;
 
-  document.querySelectorAll('#mealsBody tr').forEach(tr => {
-    const tds = tr.querySelectorAll('td');
-    for (let m = 0; m < 7; m++) {
-      const name = tds[m * 3].querySelector('input').value.trim();
-      const units = Number(tds[m * 3 + 1].querySelector('input').value) || 0;
+  document.querySelectorAll('.meal-sub-table tbody tr').forEach(tr => {
+    const name = tr.querySelector('.meal-item').value.trim();
+    const units = Number(tr.querySelector('.meal-unit').value) || 0;
 
-      if (units > 0 && !name) {
+    if (units > 0 && !name) {
+      hasInvalidEntry = true;
+    } else if (name && units > 0) {
+      const entry = mealCatalog[name];
+      if (!entry) {
         hasInvalidEntry = true;
-      } else if (name && units > 0) {
-        const entry = mealCatalog[name];
-        if (!entry) {
-          hasInvalidEntry = true;
-        } else {
-          usedMap[entry.gKey] = +(usedMap[entry.gKey] + units).toFixed(2);
-          totalUsed += units;
-        }
+      } else {
+        usedMap[entry.gKey] = +(usedMap[entry.gKey] + units).toFixed(2);
+        totalUsed += units;
       }
     }
   });
@@ -649,6 +769,39 @@ function validateMeals() {
   banner.textContent = allMatched ? 'التوزيع صحيح ✓' : 'التوزيع غير صحيح ✕';
 }
 
+function buildExcelMealsTableHTML() {
+  const mealsData = mealNames.map((_, m) => {
+    const rows = [];
+    document.querySelectorAll(`.meal-block[data-meal="${m}"] tbody tr`).forEach(tr => {
+      const name = tr.querySelector('.meal-item').value.trim();
+      const units = tr.querySelector('.meal-unit').value;
+      const grams = tr.querySelector('.gram-cell').value;
+      if (name || Number(units) > 0) {
+        rows.push({ name, units, grams });
+      }
+    });
+    return rows;
+  });
+
+  const maxRows = Math.max(4, ...mealsData.map(r => r.length));
+  let headTop = mealNames.map(n => `<th colspan="3">${n}</th>`).join('');
+  let headSub = mealNames.map(() => `<th>الصنف</th><th>وحدة</th><th>جم</th>`).join('');
+  let bodyRows = '';
+
+  for (let r = 0; r < maxRows; r++) {
+    let cells = '';
+    for (let m = 0; m < mealNames.length; m++) {
+      const item = mealsData[m][r];
+      cells += item
+        ? `<td>${item.name}</td><td>${item.units}</td><td>${item.grams}</td>`
+        : `<td></td><td></td><td></td>`;
+    }
+    bodyRows += `<tr>${cells}</tr>`;
+  }
+
+  return `<table border="1"><thead><tr>${headTop}</tr><tr>${headSub}</tr></thead><tbody>${bodyRows}</tbody></table>`;
+}
+
 function exportToExcel() {
   const tableHTML = `
     <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
@@ -657,7 +810,7 @@ function exportToExcel() {
     <p>RDA: ${targetRDA} kcal | Protein: ${targetProt}g | Carbs: ${targetCarb}g | Fat: ${targetFat}g</p>
     ${document.getElementById('exchangeTable').outerHTML}
     <br>
-    ${document.getElementById('mealsTable').outerHTML}
+    ${buildExcelMealsTableHTML()}
     </body></html>
   `;
   const dataUri = 'data:application/vnd.ms-excel;charset=utf-8,' + encodeURIComponent('\ufeff' + tableHTML);
@@ -712,6 +865,6 @@ document.addEventListener('keydown', e => {
 
 populateFoodList();
 renderExchangeTable();
-for (let i = 0; i < 4; i++) createEmptyMealRow();
+renderMealsGrid();
 updateIBW();
 calculateNeeds();

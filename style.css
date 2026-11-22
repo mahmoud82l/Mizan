@@ -73,11 +73,10 @@ input, select {
   background: var(--primary);
   color: #ffffff;
   font-weight: 800;
-  font-size: 16px;
+  font-size: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
-  letter-spacing: 0.5px;
 }
 
 .brand-text {
@@ -86,17 +85,17 @@ input, select {
   line-height: 1.25;
 }
 
-.brand-ar {
-  font-size: 17px;
+.brand-main {
+  font-size: 18px;
   font-weight: 800;
   color: var(--text);
+  letter-spacing: 0.8px;
 }
 
-.brand-en {
+.brand-sub {
   font-size: 12px;
   font-weight: 700;
   color: var(--primary);
-  letter-spacing: 0.4px;
 }
 
 .tabs-nav {
@@ -337,7 +336,7 @@ button {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .stat-card {
@@ -382,6 +381,74 @@ button {
   color: var(--muted);
   margin-top: 4px;
   font-weight: 600;
+}
+
+.steps-accordion {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.accordion-toggle {
+  width: 100%;
+  background: var(--surface);
+  color: var(--text);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 0;
+}
+
+.accordion-toggle:hover {
+  background: var(--surface-alt);
+}
+
+.chevron-icon {
+  color: var(--primary);
+  transition: transform 0.25s ease;
+}
+
+.steps-accordion.open .chevron-icon {
+  transform: rotate(180deg);
+}
+
+.accordion-body {
+  display: none;
+  padding: 14px 16px;
+  border-top: 1px solid var(--border);
+  background: var(--surface-alt);
+  font-size: 13px;
+}
+
+.steps-accordion.open .accordion-body {
+  display: block;
+}
+
+.math-step-item {
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--border);
+}
+
+.math-step-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.math-step-title {
+  font-weight: 800;
+  color: var(--primary-dark);
+  margin-bottom: 2px;
+}
+
+.math-step-detail {
+  color: var(--text);
+  font-size: 12.5px;
 }
 
 .card-head {

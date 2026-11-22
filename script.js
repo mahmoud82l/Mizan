@@ -209,6 +209,7 @@ function updateIBW() {
   return ibw;
 }
 
+/* ================= الحساب بخطوات د/ محمود رفعت رشوان ================= */
 function calculateNeeds() {
   const gender = document.getElementById('gender').value;
   const age = Number(document.getElementById('age').value) || 25;
@@ -219,61 +220,172 @@ function calculateNeeds() {
   const calcWeight = basis === 'ibw' ? ibw : currentWeight;
 
   const activityPct = Number(document.getElementById('activity').value) || 0.50;
+  const exercisePct = Number(document.getElementById('exercise').value) || 0;
   const goal = Number(document.getElementById('goal').value) || 0;
   const special = gender === 'female' ? (Number(document.getElementById('specialState').value) || 0) : 0;
 
   const rawTemp = parseFloat(document.getElementById('bodyTemp').value);
   const bodyTemp = (!isNaN(rawTemp) && rawTemp > 0) ? rawTemp : 37;
-  const climatePct = Number(document.getElementById('climate').value) || 0;
 
+  const rawClimate = parseFloat(document.getElementById('climateTemp').value);
+  const climateTemp = !isNaN(rawClimate) ? rawClimate : 20;
+
+  // 1. الـ BMR المثالية (للرجل 1 × الوزن × 24 ، للأنثى 0.9 × الوزن × 24)
   const genderFactor = gender === 'male' ? 1 : 0.9;
-  const rawBmr = calcWeight * genderFactor * 24;
-  let afterAgeBmr = rawBmr;
-  let ageDeductPct = 0;
+  const bmrIdeal = +(calcWeight * genderFactor * 24).toFixed(2);
+  let runningBmr = bmrIdeal;
+  let stepsHtml = `
+    <div class="math-step-item">
+      <div class="math-step-title">1. حساب الـ BMR المثالية</div>
+      <div class="math-step-detail">
+        الوزن المستخدم (${basis === 'ibw' ? 'المثالي' : 'الحالي'}) = <strong>${calcWeight.toFixed(1)} كجم</strong><br>
+        الـ BMR المثالية = ${genderFactor} × ${calcWeight.toFixed(1)} × 24 ساعة = <strong>${bmrIdeal} سعر حراري</strong>
+      </div>
+    </div>
+  `;
 
+  let stepNum = 2;
+
+  // 2. تعديل العمر (كلما زاد العمر 10 سنوات عن 30 يقل الـ BMR بمقدار 5% من المثالية)
   if (age > 30) {
-    const decades = Math.ceil((age - 30) / 10);
-    ageDeductPct = decades * 5;
-    afterAgeBmr = rawBmr * (1 - ageDeductPct / 100);
+    const ageDiff = age - 30;
+    const agePct = +((ageDiff * 5) / 10).toFixed(2);
+    const ageEnergy = +((bmrIdeal * agePct) / 100).toFixed(2);
+    runningBmr = +(runningBmr - ageEnergy).toFixed(2);
+    stepsHtml += `
+      <div class="math-step-item">
+        <div class="math-step-title">${stepNum++}. تعديل العمر (${age} سنة)</div>
+        <div class="math-step-detail">
+          الزيادة عن 30 سنة = ${ageDiff} سنوات ← النسبة = (${ageDiff} × 5) ÷ 10 = <strong>${agePct}%</strong><br>
+          طاقة العمر = ${bmrIdeal} × ${agePct}% = <strong>${ageEnergy} سعر حراري</strong><br>
+          الـ BMR المعدلة = ${(runningBmr + ageEnergy).toFixed(2)} - ${ageEnergy} = <strong>${runningBmr} سعر حراري</strong>
+        </div>
+      </div>
+    `;
+  } else {
+    stepsHtml += `
+      <div class="math-step-item">
+        <div class="math-step-title">${stepNum++}. تعديل العمر (${age} سنة)</div>
+        <div class="math-step-detail">العمر ≤ 30 سنة ← لا يوجد خصم (الـ BMR = <strong>${runningBmr} سعر حراري</strong>)</div>
+      </div>
+    `;
   }
 
-  const baseBmr = Math.max(0, Math.round(afterAgeBmr + special));
-
-  let feverDiff = 0;
-  let feverPct = 0;
-  let feverCal = 0;
+  // 3. تعديل درجة حرارة الجسم (كلما زادت 1 درجة عن 37 تزيد الـ BMR بمقدار 12.5% من المثالية)
   if (bodyTemp > 37) {
-    feverDiff = +(bodyTemp - 37).toFixed(1);
-    feverPct = +(feverDiff * 13).toFixed(1);
-    feverCal = Math.round(baseBmr * 0.13 * feverDiff);
+    const tempDiff = +(bodyTemp - 37).toFixed(2);
+    const tempPct = +(tempDiff * 12.5).toFixed(2);
+    const tempEnergy = +((bmrIdeal * tempPct) / 100).toFixed(2);
+    runningBmr = +(runningBmr + tempEnergy).toFixed(2);
+    stepsHtml += `
+      <div class="math-step-item">
+        <div class="math-step-title">${stepNum++}. تعديل درجة حرارة الجسم (${bodyTemp}°م)</div>
+        <div class="math-step-detail">
+          الزيادة عن 37°م = ${tempDiff}°م ← النسبة = ${tempDiff} × 12.5 = <strong>${tempPct}%</strong><br>
+          طاقة درجة حرارة الجسم = ${bmrIdeal} × ${tempPct}% = <strong>${tempEnergy} سعر حراري</strong><br>
+          الـ BMR المعدلة = ${(runningBmr - tempEnergy).toFixed(2)} + ${tempEnergy} = <strong>${runningBmr} سعر حراري</strong>
+        </div>
+      </div>
+    `;
   }
 
-  const bmr = baseBmr + feverCal;
-  const activityCal = Math.round(baseBmr * activityPct);
-  const sdaCal = Math.round(bmr * 0.10);
+  // 4. تعديل درجة حرارة المناخ (كلما زادت 10 درجات عن 20 يقل الـ BMR بمقدار 5% من المثالية والعكس)
+  if (climateTemp !== 20) {
+    const climDiff = Math.abs(climateTemp - 20);
+    const climPct = +((climDiff * 5) / 10).toFixed(2);
+    const climEnergy = +((bmrIdeal * climPct) / 100).toFixed(2);
+    const isHot = climateTemp > 20;
+    const prevBmr = runningBmr;
+    runningBmr = +(isHot ? (runningBmr - climEnergy) : (runningBmr + climEnergy)).toFixed(2);
+    stepsHtml += `
+      <div class="math-step-item">
+        <div class="math-step-title">${stepNum++}. تعديل درجة حرارة المناخ (${climateTemp}°م)</div>
+        <div class="math-step-detail">
+          الفرق عن 20°م = ${climDiff}°م (${isHot ? 'زيادة ← يقل' : 'نقص ← يزيد'}) ← النسبة = (${climDiff} × 5) ÷ 10 = <strong>${climPct}%</strong><br>
+          طاقة درجة حرارة المناخ = ${bmrIdeal} × ${climPct}% = <strong>${climEnergy} سعر حراري</strong><br>
+          الـ BMR المعدلة = ${prevBmr} ${isHot ? '-' : '+'} ${climEnergy} = <strong>${runningBmr} سعر حراري</strong>
+        </div>
+      </div>
+    `;
+  }
 
-  const beforeClimate = bmr + activityCal + sdaCal;
-  const climateCal = Math.round(beforeClimate * climatePct);
+  // 5. تعديل ممارسة الرياضة (+6% من BMR المثالية)
+  if (exercisePct > 0) {
+    const exEnergy = +(bmrIdeal * exercisePct).toFixed(2);
+    const prevBmr = runningBmr;
+    runningBmr = +(runningBmr + exEnergy).toFixed(2);
+    stepsHtml += `
+      <div class="math-step-item">
+        <div class="math-step-title">${stepNum++}. تعديل ممارسة الرياضة (+6%)</div>
+        <div class="math-step-detail">
+          طاقة ممارسة الرياضة = ${bmrIdeal} × 6% = <strong>${exEnergy} سعر حراري</strong><br>
+          الـ BMR المعدلة النهائية = ${prevBmr} + ${exEnergy} = <strong>${runningBmr} سعر حراري</strong>
+        </div>
+      </div>
+    `;
+  }
 
-  targetRDA = Math.max(0, Math.round(beforeClimate + climateCal + goal));
+  // حالة خاصة (حامل أو مرضع)
+  if (special > 0) {
+    const prevBmr = runningBmr;
+    runningBmr = +(runningBmr + special).toFixed(2);
+    stepsHtml += `
+      <div class="math-step-item">
+        <div class="math-step-title">${stepNum++}. إضافة الحالة الخاصة (${special === 300 ? 'حامل' : 'مرضع'})</div>
+        <div class="math-step-detail">
+          الـ BMR المعدلة = ${prevBmr} + ${special} = <strong>${runningBmr} سعر حراري</strong>
+        </div>
+      </div>
+    `;
+  }
 
-  targetCarb = Math.round((targetRDA * 0.60) / 4);
-  targetProt = Math.round((targetRDA * 0.15) / 4);
-  targetFat = Math.round((targetRDA * 0.25) / 9);
+  const finalBmr = Math.max(0, runningBmr);
 
-  document.getElementById('bmrVal').textContent = bmr;
-  const bmrNotes = [];
-  if (special > 0) bmrNotes.push(`+${special} حالة خاصة`);
-  if (feverCal > 0) bmrNotes.push(`+${feverCal} حمى (${bodyTemp}°م)`);
-  document.getElementById('bmrSub').textContent = bmrNotes.length > 0
-    ? `يشمل ${bmrNotes.join(' و ')}`
-    : (basis === 'ibw' ? 'الوزن المثالي' : 'الوزن الحالي');
+  // 6. طاقة المجهود والـ RDA الكلية
+  const activityCal = +(finalBmr * activityPct).toFixed(2);
+  const rawRda = +(finalBmr + activityCal + goal).toFixed(2);
+  targetRDA = Math.max(0, Math.round(rawRda));
 
+  const goalNote = goal !== 0 ? ` ${goal > 0 ? '+' : '-'} ${Math.abs(goal)} (الهدف)` : '';
+  stepsHtml += `
+    <div class="math-step-item">
+      <div class="math-step-title">${stepNum++}. طاقة المجهود (${Math.round(activityPct * 100)}%) والـ RDA الكلية</div>
+      <div class="math-step-detail">
+        طاقة المجهود = ${finalBmr} × ${Math.round(activityPct * 100)}% = <strong>${activityCal} سعر حراري</strong><br>
+        الـ RDA الكلية = ${finalBmr} + ${activityCal}${goalNote} = <strong>${rawRda} سعر حراري</strong> (تُقرب إلى <strong>${targetRDA}</strong>)
+      </div>
+    </div>
+  `;
+
+  // 7. تقسيم العناصر الغذائية (ثوابت: 15% بروتين / 60% كربوهيدرات / 25% دهون)
+  const pPct = 15;
+  const cPct = 60;
+  const fPct = 25;
+
+  const protCal = +((rawRda * pPct) / 100).toFixed(2);
+  const carbCal = +((rawRda * cPct) / 100).toFixed(2);
+  const fatCal = +((rawRda * fPct) / 100).toFixed(2);
+
+  targetProt = Math.round(protCal / 4);
+  targetCarb = Math.round(carbCal / 4);
+  targetFat = Math.round(fatCal / 9);
+
+  stepsHtml += `
+    <div class="math-step-item">
+      <div class="math-step-title">${stepNum++}. حساب العناصر الغذائية (15% بروتين / 60% كربوهيدرات / 25% دهون)</div>
+      <div class="math-step-detail">
+        • <strong>البروتين (15%):</strong> (${rawRda} × 15) ÷ 100 = ${protCal} سعر ÷ 4 = ${(protCal / 4).toFixed(2)} جم ≈ <strong>${targetProt} جم</strong><br>
+        • <strong>الكربوهيدرات (60%):</strong> (${rawRda} × 60) ÷ 100 = ${carbCal} سعر ÷ 4 = ${(carbCal / 4).toFixed(2)} جم ≈ <strong>${targetCarb} جم</strong><br>
+        • <strong>الدهون (25%):</strong> (${rawRda} × 25) ÷ 100 = ${fatCal} سعر ÷ 9 = ${(fatCal / 9).toFixed(2)} جم ≈ <strong>${targetFat} جم</strong>
+      </div>
+    </div>
+  `;
+
+  // تحديث الواجهة
+  document.getElementById('bmrVal').textContent = finalBmr;
+  document.getElementById('bmrSub').textContent = `المثالية: ${bmrIdeal}`;
   document.getElementById('rdaVal').textContent = targetRDA;
-  const climateSubText = climateCal !== 0
-    ? ` | مناخ: ${climateCal > 0 ? '+' : ''}${climateCal}`
-    : '';
-  document.getElementById('rdaSub').textContent = `مجهود: ${activityCal} | SDA: ${sdaCal}${climateSubText}`;
+  document.getElementById('rdaSub').textContent = `طاقة المجهود: ${activityCal}`;
 
   document.getElementById('carbGrams').textContent = targetCarb;
   document.getElementById('protGrams').textContent = targetProt;
@@ -289,70 +401,7 @@ function calculateNeeds() {
   document.getElementById('rdaFatCell').textContent = targetFat;
   document.getElementById('rdaKcalCell').textContent = targetRDA;
 
-  const ageStepText = age <= 30
-    ? `السن (${age} سنة) ≤ 30 سنة ← لا يوجد خصم (الـ BMR ثابت كما هو)`
-    : `السن (${age} سنة) > 30 سنة ← خصم ${ageDeductPct}% ليصبح ${afterAgeBmr.toFixed(1)} سعرة`;
-
-  const specialStepText = special > 0
-    ? `<br>الحالة الخاصة: +${special} سعرة`
-    : '';
-
-  const feverStepText = feverCal > 0
-    ? `<br>درجة حرارة الجسم (${bodyTemp}°م): زيادة ${feverDiff}°م × 13% = +${feverPct}% ← ${baseBmr} × ${feverPct}% = <strong>+${feverCal} سعرة</strong>`
-    : '';
-
-  const goalStepText = goal === 0
-    ? '0 (تثبيت الوزن)'
-    : (goal > 0 ? `+${goal} (زيادة الوزن)` : `${goal} (إنقاص الوزن)`);
-
-  let stepCounter = 5;
-  const climateStepHtml = climateCal !== 0
-    ? `
-      <div class="math-step-item">
-        <div class="math-step-title">${stepCounter++}. تأثير درجة حرارة المناخ (${climatePct > 0 ? 'جو بارد +5%' : 'جو حار -5%'})</div>
-        <div class="math-step-detail">
-          المجموع قبل المناخ = ${bmr} + ${activityCal} + ${sdaCal} = ${beforeClimate} سعرة<br>
-          تأثير المناخ = ${beforeClimate} × ${climatePct > 0 ? '+5%' : '-5%'} = <strong>${climateCal > 0 ? '+' : ''}${climateCal} سعرة</strong>
-        </div>
-      </div>
-    `
-    : '';
-
-  const rdaFormulaText = climateCal !== 0
-    ? `${beforeClimate} (بعد المناخ: ${beforeClimate + climateCal}) + ${goalStepText} = <strong>${targetRDA} سعرة</strong>`
-    : `${bmr} (BMR) + ${activityCal} (مجهود) + ${sdaCal} (SDA) + ${goalStepText} = <strong>${targetRDA} سعرة</strong>`;
-
-  document.getElementById('mathStepsBody').innerHTML = `
-    <div class="math-step-item">
-      <div class="math-step-title">1. تحديد الوزن المستخدم</div>
-      <div class="math-step-detail">الطول = ${height} سم ← الوزن المثالي = ${ibw.toFixed(1)} كجم | الوزن المستخدم = <strong>${calcWeight.toFixed(1)} كجم</strong> (${basis === 'ibw' ? 'الوزن المثالي' : 'الوزن الحالي'})</div>
-    </div>
-    <div class="math-step-item">
-      <div class="math-step-title">2. حساب معدل الأيض الأساسي (BMR)</div>
-      <div class="math-step-detail">${calcWeight.toFixed(1)} × ${genderFactor} × 24 = ${rawBmr.toFixed(1)} سعرة<br>${ageStepText}${specialStepText}${feverStepText}<br><strong>صافي BMR = ${bmr} سعرة</strong></div>
-    </div>
-    <div class="math-step-item">
-      <div class="math-step-title">3. حساب طاقة المجهود البدني (${Math.round(activityPct * 100)}%)</div>
-      <div class="math-step-detail">${baseBmr} × ${Math.round(activityPct * 100)}% = <strong>${activityCal} سعرة</strong></div>
-    </div>
-    <div class="math-step-item">
-      <div class="math-step-title">4. الفعل الديناميكي النوعي للغذاء (SDA - 10%)</div>
-      <div class="math-step-detail">${bmr} × 10% = <strong>${sdaCal} سعرة</strong></div>
-    </div>
-    ${climateStepHtml}
-    <div class="math-step-item">
-      <div class="math-step-title">${stepCounter++}. حساب الاحتياجات الكلية (RDA)</div>
-      <div class="math-step-detail">${rdaFormulaText}</div>
-    </div>
-    <div class="math-step-item">
-      <div class="math-step-title">${stepCounter++}. حساب جرامات العناصر الغذائية</div>
-      <div class="math-step-detail">
-        • الكربوهيدرات (60%): (${targetRDA} × 60%) ÷ 4 = <strong>${targetCarb} جم</strong><br>
-        • البروتين (15%): (${targetRDA} × 15%) ÷ 4 = <strong>${targetProt} جم</strong><br>
-        • الدهون (25%): (${targetRDA} × 25%) ÷ 9 = <strong>${targetFat} جم</strong>
-      </div>
-    </div>
-  `;
+  document.getElementById('mathStepsBody').innerHTML = stepsHtml;
 
   recalcExchange();
 }
@@ -551,7 +600,6 @@ function populateFoodList() {
   });
 }
 
-/* ================= بناء كروت الوجبات كاملة بعرض الشاشة ================= */
 function addRowToMeal(mealIdx, itemData = null) {
   const tbody = document.querySelector(`.meal-block[data-meal="${mealIdx}"] tbody`);
   if (!tbody) return;
@@ -839,11 +887,11 @@ document.getElementById('gender').addEventListener('change', function () {
   calculateNeeds();
 });
 
-['height', 'weight', 'age', 'bodyTemp'].forEach(id => {
+['height', 'weight', 'age', 'bodyTemp', 'climateTemp'].forEach(id => {
   document.getElementById(id).addEventListener('input', calculateNeeds);
 });
 
-['weightBasis', 'specialState', 'activity', 'climate', 'goal'].forEach(id => {
+['weightBasis', 'specialState', 'activity', 'exercise', 'goal'].forEach(id => {
   document.getElementById(id).addEventListener('change', calculateNeeds);
 });
 

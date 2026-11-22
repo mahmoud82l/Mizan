@@ -10,7 +10,45 @@
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="splash-locked">
+
+  <!-- شاشة البداية (Splash Screen) -->
+  <div id="splashScreen" class="splash-screen">
+    <div class="splash-blur-bg" style="background-image: url('team.jpg');"></div>
+    <div class="splash-overlay"></div>
+
+    <div class="splash-top-badge">
+      <span class="splash-logo">NUTRI</span>
+      <span class="splash-sub">دليلك الغذائي • نوعية عين شمس</span>
+    </div>
+
+    <div class="splash-photo-frame">
+      <img src="team.jpg" alt="فريق العمل - إعداد أطعمة">
+    </div>
+
+    <div class="splash-bottom-area">
+      <div id="splashLoader" class="splash-loader">
+        <div class="spinner"></div>
+        <span>جاري تحميل التطبيق...</span>
+      </div>
+
+      <button type="button" id="swipeUpPrompt" class="swipe-prompt hidden" aria-label="اسحب لأعلى">
+        <div class="finger-anim-box">
+          <svg class="swipe-arrows" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="18 15 12 9 6 15"></polyline>
+          </svg>
+          <svg class="finger-icon" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2"></path>
+            <path d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2"></path>
+            <path d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8"></path>
+            <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"></path>
+          </svg>
+        </div>
+        <span class="swipe-text">اسحب لأعلى للدخول</span>
+      </button>
+    </div>
+  </div>
+
   <header class="top-bar">
     <div class="container header-inner">
       <div class="brand">
@@ -204,17 +242,17 @@
           <button type="button" class="btn-sm btn-primary" id="autoDistBtn">توزيع تلقائي</button>
         </div>
 
-        <div class="table-wrap">
-          <table id="exchangeTable">
+        <div class="table-wrap full-fit">
+          <table id="exchangeTable" class="fit-exchange-table">
             <thead>
               <tr>
-                <th>مجموعة الأطعمة</th>
-                <th>الوحدة</th>
-                <th>الكمية (جم)</th>
-                <th>البروتين</th>
-                <th>الكربوهيدرات</th>
-                <th>الدهون</th>
-                <th>المجموع (سعرة)</th>
+                <th class="col-food">مجموعة الأطعمة</th>
+                <th class="col-unit">الوحدة</th>
+                <th class="col-gram">جم</th>
+                <th class="col-macro">بروتين</th>
+                <th class="col-macro">كربو</th>
+                <th class="col-macro">دهون</th>
+                <th class="col-kcal">سعرة</th>
               </tr>
             </thead>
             <tbody id="exchangeBody"></tbody>
@@ -266,31 +304,8 @@
 
         <datalist id="foodItemsList"></datalist>
 
-        <div class="table-wrap">
-          <table id="mealsTable" class="meals-grid">
-            <thead>
-              <tr>
-                <th colspan="3">بعد الاستيقاظ</th>
-                <th colspan="3">الإفطار</th>
-                <th colspan="3">بين الفطار والغداء</th>
-                <th colspan="3">الغداء</th>
-                <th colspan="3">بين الغداء والعشاء</th>
-                <th colspan="3">العشاء</th>
-                <th colspan="3">قبل النوم</th>
-              </tr>
-              <tr>
-                <th>الصنف</th><th>وحدة</th><th>جم</th>
-                <th>الصنف</th><th>وحدة</th><th>جم</th>
-                <th>الصنف</th><th>وحدة</th><th>جم</th>
-                <th>الصنف</th><th>وحدة</th><th>جم</th>
-                <th>الصنف</th><th>وحدة</th><th>جم</th>
-                <th>الصنف</th><th>وحدة</th><th>جم</th>
-                <th>الصنف</th><th>وحدة</th><th>جم</th>
-              </tr>
-            </thead>
-            <tbody id="mealsBody"></tbody>
-          </table>
-        </div>
+        <!-- عرض الوجبات كاملة بعرض الشاشة بدون سحب أفقي -->
+        <div id="mealsContainer" class="meals-blocks-grid"></div>
 
         <div class="status-banner" id="mealsStatusBanner"></div>
 
@@ -300,6 +315,14 @@
       </div>
     </section>
   </main>
+
+  <!-- الصورة في آخر الموقع -->
+  <footer class="container team-footer">
+    <div class="card team-footer-card">
+      <img src="team.jpg" alt="فريق العمل - نوعية عين شمس" class="team-footer-img">
+      <p class="team-footer-caption">فريق العمل • قسم الاقتصاد المنزلي - كلية التربية النوعية جامعة عين شمس</p>
+    </div>
+  </footer>
 
   <div id="toast" class="toast"></div>
   <script src="script.js"></script>

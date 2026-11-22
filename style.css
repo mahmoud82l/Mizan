@@ -231,7 +231,7 @@ body.splash-locked {
   }
 }
 
-/* ================= كارت الصورة في آخر الموقع ================= */
+/* ================= كارت الصورة وأسماء الفريق في آخر الموقع ================= */
 .team-footer {
   margin-top: 24px;
 }
@@ -255,6 +255,61 @@ body.splash-locked {
   font-size: 12.5px;
   font-weight: 700;
   color: var(--primary-dark);
+}
+
+.team-members-box {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border);
+  text-align: right;
+}
+
+.team-members-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.team-members-grid {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.team-members-grid li {
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 10px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.team-members-grid li span {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: var(--primary-soft);
+  color: var(--primary-dark);
+  font-size: 11.5px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+@media (max-width: 520px) {
+  .team-members-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ================= باقي تنسيقات التطبيق ================= */
@@ -411,7 +466,7 @@ input, select {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 700;
   color: var(--muted);
 }
@@ -442,7 +497,7 @@ input, select {
   flex: 1;
   height: 2px;
   background: var(--border);
-  margin: 0 8px;
+  margin: 0 6px;
 }
 
 .step-panel {

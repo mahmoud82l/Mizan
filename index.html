@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#0d9488">
-  <title>Nutri Guide | دليلك للتغذية</title>
+  <title>NUTRI | دليلك الغذائي - نوعية عين شمس</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -14,10 +14,10 @@
   <header class="top-bar">
     <div class="container header-inner">
       <div class="brand">
-        <div class="brand-badge">NG</div>
+        <div class="brand-badge">N</div>
         <div class="brand-text">
-          <span class="brand-ar">دليلك للتغذية</span>
-          <span class="brand-en">Nutri Guide</span>
+          <span class="brand-main">NUTRI</span>
+          <span class="brand-sub">دليلك الغذائي / نوعية عين شمس</span>
         </div>
       </div>
     </div>
@@ -108,11 +108,27 @@
             <div class="field">
               <label for="activity">نسبة طاقة المجهود</label>
               <select id="activity">
-                <option value="0.50" selected>مجهود بسيط: 50% (طالب وموظف)</option>
-                <option value="0.75">مجهود متوسط: 75% (طبيب - محاسب - مهندس - ربة منزل - مدرس)</option>
+                <option value="0.50" selected>مجهود بسيط: 50% (طالب - موظف - ربة منزل)</option>
+                <option value="0.75">مجهود متوسط: 75% (طبيب - محاسب - مهندس - مدرس)</option>
                 <option value="1.00">مجهود شاق: 100% (عامل بناء - عامل حفر - عامل مناجم)</option>
               </select>
             </div>
+
+            <div class="grid-2">
+              <div class="field">
+                <label for="bodyTemp">درجة حرارة الجسم (°م)</label>
+                <input type="number" id="bodyTemp" min="35" max="43" step="0.1" value="37" placeholder="37">
+              </div>
+              <div class="field">
+                <label for="climate">درجة حرارة المناخ</label>
+                <select id="climate">
+                  <option value="0" selected>معتدل (طبيعي)</option>
+                  <option value="0.05">بارد (+5%)</option>
+                  <option value="-0.05">حار (-5%)</option>
+                </select>
+              </div>
+            </div>
+
             <div class="step-actions">
               <button type="button" class="btn-outline" onclick="goStep(1)">السابق</button>
               <button type="button" class="btn-primary" onclick="goStep(3)">التالي</button>
@@ -159,6 +175,16 @@
               <div class="stat-title">الدهون (25%)</div>
               <div class="stat-val"><span id="fatGrams">0</span> <small>جم</small></div>
             </div>
+          </div>
+
+          <div class="steps-accordion" id="mathAccordion">
+            <button type="button" class="accordion-toggle" id="toggleMathBtn" aria-expanded="false">
+              <span>عرض خطوات الحل والمعادلات</span>
+              <svg class="chevron-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+            <div class="accordion-body" id="mathStepsBody"></div>
           </div>
 
           <div class="tab-footer-nav">

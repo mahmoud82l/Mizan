@@ -1292,3 +1292,222 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px s
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
+
+/* ===== NUTRI Pink & Rose visual identity ===== */
+:root {
+  --bg: #fff9fb;
+  --surface: rgba(255, 255, 255, 0.96);
+  --surface-alt: #fff4f8;
+  --border: #f3d5e2;
+  --primary: #be185d;
+  --primary-mid: #db2777;
+  --primary-dark: #831843;
+  --primary-soft: #fce7f3;
+  --accent: #e11d48;
+  --accent-light: #fb7185;
+  --accent-soft: #ffe4e6;
+  --text: #321827;
+  --muted: #806475;
+  --ok-bg: #ecfdf5;
+  --ok-text: #047857;
+  --err-bg: #fff1f2;
+  --err-text: #be123c;
+  --shadow: 0 14px 36px rgba(190, 24, 93, 0.10);
+  --shadow-soft: 0 6px 18px rgba(190, 24, 93, 0.08);
+}
+
+body {
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(135deg, rgba(219, 39, 119, 0.035) 25%, transparent 25%),
+    linear-gradient(315deg, rgba(225, 29, 72, 0.025) 25%, transparent 25%),
+    radial-gradient(circle at 8% 4%, rgba(244, 114, 182, 0.16), transparent 28%),
+    radial-gradient(circle at 94% 92%, rgba(251, 113, 133, 0.10), transparent 26%),
+    linear-gradient(180deg, #fffdfd 0%, #fff7fa 100%);
+  background-size: 34px 34px, 34px 34px, auto, auto, auto;
+}
+
+/* Header and navigation */
+.top-bar {
+  background: linear-gradient(115deg, rgba(131, 24, 67, 0.99), rgba(190, 24, 93, 0.97) 52%, rgba(219, 39, 119, 0.96));
+  border-bottom: 1px solid rgba(255, 228, 230, 0.38);
+  box-shadow: 0 12px 28px rgba(131, 24, 67, 0.24);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+.top-bar::after {
+  background: linear-gradient(90deg, transparent, #fda4af, transparent);
+}
+.header-inner { padding-top: 15px; padding-bottom: 15px; }
+.brand-badge {
+  background: linear-gradient(135deg, #fda4af, #e11d48);
+  color: #831843;
+  border: 2px solid rgba(255, 255, 255, 0.74);
+  box-shadow: 0 5px 16px rgba(76, 5, 25, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+.brand-badge::after {
+  background: #fff1f2;
+  color: #be123c;
+  border-color: #fb7185;
+}
+.brand-sub { color: #ffe4e6; }
+.tabs-nav { background: rgba(88, 7, 40, 0.43); border-top-color: rgba(255, 255, 255, 0.18); }
+.tabs-inner { gap: 8px; padding-top: 10px; padding-bottom: 10px; }
+.tab-btn { min-height: 40px; border-color: rgba(255, 255, 255, 0.10); }
+.tab-btn:hover { background: rgba(255, 255, 255, 0.13); }
+.tab-btn.active {
+  background: linear-gradient(180deg, #ffffff 0%, #fff1f6 100%);
+  color: var(--primary-dark);
+  border-color: rgba(244, 114, 182, 0.58);
+  box-shadow: 0 4px 14px rgba(76, 5, 25, 0.19);
+}
+.tab-btn.active::after { background: #fda4af; }
+
+/* Cards and form controls */
+.card, .stat-card, .steps-accordion {
+  border-color: rgba(243, 213, 226, 0.95);
+  box-shadow: var(--shadow);
+}
+.card { background: var(--surface); }
+.card::before, .wizard-card::before {
+  background: linear-gradient(180deg, #e11d48, rgba(225, 29, 72, 0));
+}
+.wizard-card { border-top-color: var(--primary); }
+.field label { color: #54223b; }
+input, select {
+  background: rgba(255, 249, 251, 0.94);
+  border-color: #edcada;
+  color: var(--text);
+}
+input:hover, select:hover { border-color: rgba(219, 39, 119, 0.55); }
+input:focus, select:focus {
+  border-color: var(--primary-mid);
+  box-shadow: 0 0 0 3px rgba(219, 39, 119, 0.14);
+}
+button:focus-visible, input:focus-visible, select:focus-visible {
+  outline-color: rgba(225, 29, 72, 0.30);
+}
+.btn-primary {
+  background: linear-gradient(135deg, #db2777 0%, #be185d 100%);
+  border-color: rgba(131, 24, 67, 0.45);
+  box-shadow: 0 4px 12px rgba(190, 24, 93, 0.22);
+}
+.btn-primary:hover { background: linear-gradient(135deg, #be185d, #9d174d); box-shadow: 0 7px 16px rgba(190, 24, 93, 0.28); }
+.btn-outline { color: var(--primary); border-color: #edcada; }
+.btn-outline:hover { background: #fff4f8; border-color: var(--primary-mid); }
+.btn-sm { background: var(--primary-soft); color: var(--primary-dark); }
+.btn-sm.btn-primary { background: linear-gradient(135deg, #db2777, #be185d); color: #fff; }
+
+/* Steps and summary cards */
+.steps-bar { border-bottom-color: #f5dce7; }
+.step-item.active { color: var(--primary); }
+.step-item.active .step-num {
+  background: var(--primary);
+  border-color: #fda4af;
+  box-shadow: 0 0 0 4px rgba(244, 114, 182, 0.16);
+}
+.step-line { background: #f1d8e4; }
+.ibw-box {
+  background: linear-gradient(110deg, #fce7f3, #fff1f2);
+  border-color: #f3c8db;
+  border-inline-start-color: var(--accent);
+  color: var(--primary-dark);
+}
+
+.stats-grid { gap: 12px; }
+.stat-card {
+  border-top: 0;
+  border-inline-start: 4px solid var(--primary-mid);
+  padding: 15px 14px 14px;
+  text-align: right;
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+.stat-card::after { color: rgba(219, 39, 119, 0.12); }
+.stat-card:hover { box-shadow: 0 16px 30px rgba(190, 24, 93, 0.15); }
+.stat-card.highlight {
+  border-color: #9d174d;
+  border-inline-start-color: #fda4af;
+  background: linear-gradient(140deg, #9d174d 0%, #be185d 54%, #db2777 100%);
+}
+.stat-title { color: var(--muted); }
+.stat-card.highlight .stat-title { color: #ffe4e6; }
+.stat-val { color: var(--primary-dark); }
+.stat-card.highlight .stat-val { color: #fff; }
+.stat-val small { color: var(--muted); }
+.stat-card.highlight .stat-val small, .stat-card.highlight .stat-sub { color: #ffe4e6; }
+.stat-sub { color: var(--muted); }
+.steps-accordion { background: var(--surface); }
+.accordion-toggle { color: var(--primary-dark); background: var(--surface); }
+.accordion-toggle:hover { background: #fff4f8; }
+.chevron-icon { color: var(--accent); }
+.accordion-body { border-top-color: var(--border); background: var(--surface-alt); }
+.math-step-title { color: var(--primary); }
+
+/* Exchange table */
+.table-wrap.full-fit { border-color: #f1d5e2; box-shadow: var(--shadow-soft); }
+.fit-exchange-table th {
+  background: linear-gradient(180deg, #fce7f3, #fbcfe8);
+  border-color: #f0c5d8;
+  color: var(--primary-dark);
+}
+.group-header-row td {
+  background: linear-gradient(90deg, #fff1f2, #fce7f3);
+  color: var(--primary-dark);
+  border-right-color: var(--accent);
+}
+.row-rda td { background: #fce7f3; color: var(--primary-dark); }
+.row-sum td { background: #fff7ed; }
+.row-diff td { background: #fff1f2; }
+.diff-ok { color: var(--ok-text); background: var(--ok-bg); }
+.diff-bad { color: var(--err-text); background: var(--err-bg); }
+
+/* Meal cards and footer */
+.meal-block {
+  border-color: #f0d3df;
+  box-shadow: var(--shadow-soft);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.meal-block:hover { box-shadow: 0 12px 24px rgba(190, 24, 93, 0.14); }
+.meal-block-head {
+  background: linear-gradient(110deg, #fce7f3 0%, #fff1f2 100%);
+  border-bottom-color: #efd2df;
+  color: var(--primary-dark);
+}
+.meal-add-mini { color: var(--primary); border-color: rgba(219, 39, 119, 0.48); background: #fff; }
+.meal-sub-table th { background: #fff4f8; }
+.meal-sub-table input.gram-cell { background: #fff1f2; color: var(--primary-dark); }
+.team-footer-card {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(255, 244, 248, 0.97));
+  border-top-color: var(--primary);
+}
+.team-footer-img { border-color: rgba(219, 39, 119, 0.28); box-shadow: 0 8px 22px rgba(190, 24, 93, 0.12); }
+.team-footer-caption, .footer-sec-title { color: var(--primary); }
+.supervision-box, .team-members-box { border-top-color: #f0d5e1; }
+.doctors-grid li { background: #fce7f3; border-color: rgba(219, 39, 119, 0.22); color: var(--primary-dark); }
+.team-members-grid li { background: #fff8fa; border-color: #f1dce5; }
+.team-members-grid li span { background: #ffe4e6; color: #be123c; }
+.status-banner.ok { border-color: #a7f3d0; }
+.status-banner.bad { border-color: #fecdd3; }
+.toast { background: var(--primary-dark); border-color: #fda4af; }
+
+@media (max-width: 600px) {
+  .container { padding-inline: 10px; }
+  .brand-badge { width: 40px; height: 40px; }
+  .brand-main { font-size: 17px; }
+  .brand-sub { font-size: 10px; }
+  .tab-btn { min-width: 142px; font-size: 11.5px; padding-inline: 7px; }
+  .card { padding: 14px 10px; border-radius: 13px; }
+  .stat-card { padding: 12px 10px; }
+  .fit-exchange-table { font-size: 10px; }
+  .fit-exchange-table .col-food { width: 31%; }
+  .fit-exchange-table .col-unit { width: 14%; }
+  .fit-exchange-table .col-gram { width: 11%; }
+  .fit-exchange-table .col-macro { width: 11%; }
+  .fit-exchange-table .col-kcal { width: 11%; }
+  th, td { padding: 5px 1px; }
+  .item-name-cell { font-size: 10px; padding-inline: 4px; }
+  .unit-hint { font-size: 8.5px; }
+  .unit-input { max-width: 42px; }
+  .head-btns { width: 100%; }
+  .head-btns button { flex: 1; padding-inline: 7px; font-size: 11px; }
+}
